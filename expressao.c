@@ -63,7 +63,7 @@ int ehFuncao(const char *s) {
 int precedencia(const char *op) {
     if (ehFuncao(op)) return 4;
     if (strcmp(op, "^") == 0) return 3;
-    if (strcmp(op, "*") == 0 || strcmp(op, "/" ) == 0 || strcmp(op, "%") == 0) return 2;
+    if (strcmp(op, "*") == 0 || strcmp(op, "/") == 0 || strcmp(op, "%") == 0) return 2;
     if (strcmp(op, "+") == 0 || strcmp(op, "-") == 0) return 1;
     return 0;
 }
@@ -193,7 +193,15 @@ char *getFormaInFixa(char *Str) {
             char *b = pop(&pilha);
             char *a = pop(&pilha);
             char *expr = malloc(512);
-            sprintf(expr, "(%s %s %s)", a, token, b);
+
+            int p1 = precedencia(token);
+            int p2a = a[0] == '(' ? precedencia(strchr(a + 1, ' ') + 1) : p1;
+            int p2b = b[0] == '(' ? precedencia(strchr(b + 1, ' ') + 1) : p1;
+
+            if (p2a < p1) sprintf(expr, "%s %s %s", a, token, b);
+            else if (p2b < p1) sprintf(expr, "%s %s %s", a, token, b);
+            else sprintf(expr, "(%s %s %s)", a, token, b);
+
             free(a); free(b);
             push(&pilha, expr);
         } else if (ehFuncao(token)) {
